@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver</title>
+    <style>
+        input {
+            height: 30px;
+            width: 50px;
+            margin: 2px;
+            text-align: center;
+            font-size: 25px;
+        }
+        table {
+            border-collapse: collapse;
+        }
+        th {
+            border: 1px solid black;
+            background-color: beige;
+            width: 50px;
+        }
+        td {
+            width: 25px;
+            height: 30px;
+            text-align: center;
+            border: 1px solid black;
+            background-color: beige;
+            margin: 50px 50px;
+        }
+        button {
+            height: 70px;
+            width: 150px;
+            font-size: 45px;
+            margin: 20px 700px;
+            background-color: lightgreen;
+            border: 10px;
+            border-radius: 15px;
+            border-color: black;
+        }
+        h1 {
+            font-size: 70px;
+            font-style: bold;
+            background-color: aqua;
+            text-align: center;
+        }
+        h2 {
+            font-size: 70px;
+            margin: 20px;
+            font-style: oblique;
+            background-color: lightgray;
+            text-align: center;
+        }
+        table {
+            width: 630px;
+            height: 450px;
+            font-size: 40px;
+            justify-content: center;
+            margin: 20px 450px;
+        }
+        footer {
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            padding: 10px 0;
+            height: 40px;
+            font-size: 30px;
+        }
+
+/* Style for the copyright text */
+        footer p {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sudoku Solver</h1>
+    <table id="sudoku-table">
+        <!-- Create a 9x9 table for Sudoku grid -->
+        <!-- Add input fields for each cell -->
+    </table>
+    <button id="solve-button">Solve</button>
+    <br>
+    <h2>Solution :</h2>
+    <table id="solution-table"></table>
+
+    <footer>
+        <p>&copy; 2023 Your Company. All rights reserved.</p>
+      </footer>
+
+    <script>
+        // Initialize the Sudoku grid
+        const sudokuTable = document.getElementById("sudoku-table");
+        for (let i = 0; i < 9; i++) {
+            const row = document.createElement("tr");
+            for (let j = 0; j < 9; j++) {
+                const cell = document.createElement("td");
+                const input = document.createElement("input");
+                input.type = "text";
+                input.maxLength = 1;
+                cell.appendChild(input);
+                row.appendChild(cell);
+            }
+            sudokuTable.appendChild(row);
+        }
+
+        const solveButton = document.getElementById("solve-button");
+        solveButton.addEventListener("click", solveSudoku);
+
+        function solveSudoku() {
+            const puzzle = [];
+            for (let i = 0; i < 9; i++) {
+                const row = [];
+                for (let j = 0; j < 9; j++) {
+                    const input = sudokuTable.rows[i].cells[j].querySelector("input");
+                    const value = input.value.trim();
+                    row.push(value === "" ? 0 : parseInt(value));
+                }
+                puzzle.push(row);
+            }
+
+            if (solve(puzzle)) {
+                displaySolution(puzzle);
+            } else {
+                alert("No solution exists.");
+            }
+        }
+
+        function solve(board) {
+            const emptyCell = findEmptyCell(board);
+            if (!emptyCell) {
+                return true;  // All cells filled
+            }
+
+            const [row, col] = emptyCell;
+
+            for (let num = 1; num <= 9; num++) {
+                if (isValidMove(board, row, col, num)) {
+                    board[row][col] = num;
+                    if (solve(board)) {
+                        return true;
+                    }
+                    board[row][col] = 0; // Backtrack
+                }
+            }
+
+            return false;
+        }
+
+        function findEmptyCell(board) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (board[row][col] === 0) {
+                        return [row, col];
+                    }
+                }
+            }
+            return null;
+        }
+
+        function isValidMove(board, row, col, num) {
+            // Check row and column
+            for (let i = 0; i < 9; i++) {
+                if (board[row][i] === num || board[i][col] === num) {
+                    return false;
+                }
+            }
+
+            // Check 3x3 subgrid
+            const startRow = row - (row % 3);
+            const startCol = col - (col % 3);
+            for (let i = startRow; i < startRow + 3; i++) {
+                for (let j = startCol; j < startCol + 3; j++) {
+                    if (board[i][j] === num) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+        
+
+        function displaySolution(solution) {
+            const solutionTable = document.getElementById("solution-table");
+            solutionTable.innerHTML = "";  // Clear previous solution
+
+            for (let i = 0; i < 9; i++) {
+                const row = document.createElement("tr");
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement("td");
+                    cell.textContent = solution[i][j];
+                    row.appendChild(cell);
+                }
+                solutionTable.appendChild(row);
+            }
+        }
+    </script>
+</body>
+</html>
